@@ -16,9 +16,6 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.19.8
     container_name: kibana
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - ELASTICSEARCH_SERVICEACCOUNTTOKEN=${KIBANA_SERVICE_ACCOUNT_TOKEN}
@@ -29,9 +26,6 @@ services:
   apm-server:
     image: docker.elastic.co/apm/apm-server:8.19.8
     container_name: apm-server
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
     ports:
       - "8200:8200"
     command:
