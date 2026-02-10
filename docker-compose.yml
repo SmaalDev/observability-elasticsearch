@@ -1,0 +1,53 @@
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.8
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=true
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "elastic:${ELASTIC_PASSWORD}", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.19.8
+    container_name: kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=${KIBANA_SERVICE_ACCOUNT_TOKEN}
+      - SERVER_PUBLICBASEURL=${KIBANA_PUBLIC_BASE_URL}
+    ports:
+      - "5601:5601"
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.19.8
+    container_name: apm-server
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8200:8200"
+    command:
+      - apm-server
+      - -e
+      - -E
+      - apm-server.host=0.0.0.0:8200
+      - -E
+      - output.elasticsearch.hosts=["http://elasticsearch:9200"]
+      - -E
+      - output.elasticsearch.api_key=${APM_SERVER_API_KEY}
+
+volumes:
+  esdata:
