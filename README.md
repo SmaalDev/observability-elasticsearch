@@ -8,6 +8,9 @@
   Crie um arquivo .env na raiz do projeto com as seguintes variáveis:
   
   ELASTIC_PASSWORD=
+  
   KIBANA_SERVICE_ACCOUNT_TOKEN=
+  
   KIBANA_PUBLIC_BASE_URL=
+  
   APM_SERVER_API_KEY=
